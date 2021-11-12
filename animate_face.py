@@ -102,6 +102,7 @@ with th.no_grad():
     geom = template_verts.view(1, 1, 6172, 3).expand(-1, T, -1, -1).contiguous()
     result = geom_unet(geom, one_hot)["geom"].squeeze(0)
 # smooth results
+print('smooth results...')
 result = smooth_geom(result, forehead_mask)
 result = smooth_geom(result, neck_mask)
 # render sequence

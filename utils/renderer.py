@@ -90,7 +90,8 @@ class Renderer:
         """
         if not video_output[-4:] == '.mp4':
             video_output = video_output + '.mp4'
-
+        print('video output:', video_output)
+        
         images = th.cat([self.render(v).cpu() for v in th.split(verts, batch_size)], dim=0)
         images = 255 * images[:, :, :, :3].contiguous().numpy()
         images = images.astype(np.uint8)
@@ -101,7 +102,7 @@ class Renderer:
         output_args = {
             "format": "mp4",
             "pix_fmt": "yuv420p",
-            "vcodec": "libx264",
+            # "vcodec": "libx264",
             "movflags": "frag_keyframe+empty_moov+faststart"
         }
         proc = (
