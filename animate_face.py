@@ -15,6 +15,8 @@ from models.vertex_unet import VertexUnet
 from models.context_model import ContextModel
 from models.encoders import MultimodalEncoder
 
+th.backends.cudnn.enabled = False
+
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--model_dir",
@@ -46,8 +48,10 @@ template_verts = get_template_verts(args.face_template)
 audio = load_audio(args.audio_file)
 mean = th.from_numpy(np.load("assets/face_mean.npy"))
 stddev = th.from_numpy(np.load("assets/face_std.npy"))
-forehead_mask = th.from_numpy(load_mask("assets/forehead_mask.txt", dtype=np.float32)).cuda()
-neck_mask = th.from_numpy(load_mask("assets/neck_mask.txt", dtype=np.float32)).cuda()
+# forehead_mask = th.from_numpy(load_mask("assets/forehead_mask.txt", dtype=np.float32)).cuda()
+forehead_mask = th.from_numpy(load_mask("assets/forehead_mask.txt", dtype=np.float32))
+# neck_mask = th.from_numpy(load_mask("assets/neck_mask.txt", dtype=np.float32)).cuda()
+neck_mask = th.from_numpy(load_mask("assets/neck_mask.txt", dtype=np.float32))
 
 renderer = Renderer("assets/face_template.obj")
 
@@ -62,13 +66,15 @@ geom_unet = VertexUnet(classes=128,
                        stddev=stddev,
                        )
 geom_unet.load(args.model_dir)
-geom_unet.cuda().eval()
+# geom_unet.cuda().eval()
+geom_unet.eval()
 context_model = ContextModel(classes=128,
                              heads=16,
                              audio_dim=128
                              )
 context_model.load(args.model_dir)
-context_model.cuda().eval()
+# context_model.cuda().eval()
+context_model.eval()
 encoder = MultimodalEncoder(classes=128,
                             heads=16,
                             expression_dim=128,
@@ -78,7 +84,8 @@ encoder = MultimodalEncoder(classes=128,
                             stddev=stddev,
                             )
 encoder.load(args.model_dir)
-encoder.cuda().eval()
+# encoder.cuda().eval()
+encoder.eval()
 
 """
 generate and render sequence
@@ -87,10 +94,12 @@ print("animate face mesh...")
 # run template mesh and audio through networks
 audio = audio_chunking(audio, frame_rate=30, chunk_size=16000)
 with th.no_grad():
-    audio_enc = encoder.audio_encoder(audio.cuda().unsqueeze(0))["code"]
+    # audio_enc = encoder.audio_encoder(audio.cuda().unsqueeze(0))["code"]
+    audio_enc = encoder.audio_encoder(audio.unsqueeze(0))["code"]
     one_hot = context_model.sample(audio_enc, argmax=False)["one_hot"]
     T = one_hot.shape[1]
-    geom = template_verts.cuda().view(1, 1, 6172, 3).expand(-1, T, -1, -1).contiguous()
+    # geom = template_verts.cuda().view(1, 1, 6172, 3).expand(-1, T, -1, -1).contiguous()
+    geom = template_verts.view(1, 1, 6172, 3).expand(-1, T, -1, -1).contiguous()
     result = geom_unet(geom, one_hot)["geom"].squeeze(0)
 # smooth results
 result = smooth_geom(result, forehead_mask)
