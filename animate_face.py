@@ -4,6 +4,7 @@ All rights reserved.
 This source code is licensed under the license found in the
 LICENSE file in the root directory of this source tree.
 """
+import time
 
 import argparse
 import numpy as np
@@ -15,8 +16,10 @@ from models.vertex_unet import VertexUnet
 from models.context_model import ContextModel
 from models.encoders import MultimodalEncoder
 
-th.backends.cudnn.enabled = False
 
+start = time.time()
+
+th.backends.cudnn.enabled = False
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--model_dir",
@@ -102,10 +105,10 @@ with th.no_grad():
     geom = template_verts.view(1, 1, 6172, 3).expand(-1, T, -1, -1).contiguous()
     result = geom_unet(geom, one_hot)["geom"].squeeze(0)
 # smooth results
-print('smooth results...')
 result = smooth_geom(result, forehead_mask)
 result = smooth_geom(result, neck_mask)
 # render sequence
 print("render...")
 renderer.to_video(result, args.audio_file, args.output)
 print("done")
+print("execution time:", time.time() - start)

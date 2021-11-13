@@ -88,6 +88,10 @@ class Renderer:
         :param fps: frame rate of output video
         :param batch_size: number of frames to render simultaneously in one batch
         """
+        print('save mesh sequence...')
+        verts_np = verts.numpy()
+        np.savez_compressed("/data3/shovelingpig/STV/meshtalk/output/mesh_sequnce.npz", verts_np)
+
         if not video_output[-4:] == '.mp4':
             video_output = video_output + '.mp4'
         print('video output:', video_output)
