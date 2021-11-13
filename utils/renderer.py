@@ -90,7 +90,7 @@ class Renderer:
         """
         print('save mesh sequence...')
         verts_np = verts.numpy()
-        np.savez_compressed("/data3/shovelingpig/STV/meshtalk/output/mesh_sequnce.npz", verts_np)
+        np.savez_compressed("/data3/shovelingpig/STV/meshtalk/output/mesh_sequnce.npz", x=verts_np)
 
         if not video_output[-4:] == '.mp4':
             video_output = video_output + '.mp4'
