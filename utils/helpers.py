@@ -108,7 +108,7 @@ class Net(th.nn.Module):
         else:
             fname = f"{model_dir}/{self.model_name}.{suffix}.pkl"
         th.save(self.state_dict(), fname)
-        # self.cuda()
+        self.cuda()
         return self
 
     def load(self, model_dir: str, suffix: str = ''):
@@ -123,7 +123,7 @@ class Net(th.nn.Module):
             fname = f"{model_dir}/{self.model_name}.{suffix}.pkl"
         states = th.load(fname)
         self.load_state_dict(states)
-        # self.cuda()
+        self.cuda()
         print("Loaded:", fname)
         return self
 

@@ -77,7 +77,7 @@ class Renderer:
                 )
             )
             images = renderer(mesh)
-
+        
         return images
 
     def to_video(self, verts: th.Tensor, audio_file: str, video_output: str, fps: int = 30, batch_size: int = 30):
@@ -88,10 +88,6 @@ class Renderer:
         :param fps: frame rate of output video
         :param batch_size: number of frames to render simultaneously in one batch
         """
-        print('save mesh sequence...')
-        verts_np = verts.numpy()
-        np.savez_compressed("/data3/shovelingpig/STV/meshtalk/output/mesh_sequnce.npz", x=verts_np)
-
         if not video_output[-4:] == '.mp4':
             video_output = video_output + '.mp4'
         print('video output:', video_output)
@@ -118,3 +114,7 @@ class Renderer:
         )
 
         proc.communicate(input=images.tobytes())
+
+        print('save mesh sequence...')
+        verts_np = verts.cpu().numpy()
+        np.savez_compressed("/data3/shovelingpig/STV/meshtalk/output/mesh_sequnce.npz", x=verts_np)
