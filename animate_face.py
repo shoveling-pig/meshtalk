@@ -4,6 +4,7 @@ All rights reserved.
 This source code is licensed under the license found in the
 LICENSE file in the root directory of this source tree.
 """
+import time
 
 import argparse
 import numpy as np
@@ -15,6 +16,13 @@ from models.vertex_unet import VertexUnet
 from models.context_model import ContextModel
 from models.encoders import MultimodalEncoder
 
+
+start = time.time()
+
+if th.cuda.is_available():
+    print('cuda available!')
+else:
+    print('cuda not available!')
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--model_dir",
@@ -99,3 +107,10 @@ result = smooth_geom(result, neck_mask)
 print("render...")
 renderer.to_video(result, args.audio_file, args.output)
 print("done")
+print("execution time:", time.time() - start)
+
+output_path = "/data3/shovelingpig/STV/meshtalk/output/mesh_seq.npy"
+mesh_seq = {}
+mesh_seq["verts_seq"] = result.cpu().numpy()
+mesh_seq["faces"] = renderer.faces[0].cpu().numpy()
+np.save(output_path, mesh_seq)
