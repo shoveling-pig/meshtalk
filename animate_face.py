@@ -108,3 +108,9 @@ print("render...")
 renderer.to_video(result, args.audio_file, args.output)
 print("done")
 print("execution time:", time.time() - start)
+
+output_path = "/data3/shovelingpig/STV/meshtalk/output/mesh_seq.npy"
+mesh_seq = {}
+mesh_seq["verts_seq"] = result.cpu().numpy()
+mesh_seq["faces"] = renderer.faces[0].cpu().numpy()
+np.save(output_path, mesh_seq)
